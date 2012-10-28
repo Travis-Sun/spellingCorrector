@@ -1,3 +1,5 @@
+library(parallel)
+
 # corpus file path
 words.file = file.path("Data","words.txt")
 
@@ -53,15 +55,19 @@ getnearlywords <- function(word) {
 }
 
 
-#input <- "writen"
+
 correct <- function(input) {
   if (is.na(words.table[input])) {
     #change one char
     words.1char <- getnearlywords(input)
     #change two chars
+    cObj <- makeCluster(detectCores())
+    words.2char <- c(do.call(rbind,parLapply(cObj,words.1char,fun=getnearlywords))[,])
     words.2char <- c(do.call(rbind,lapply(words.1char,FUN=getnearlywords))[,])
+    stopCluster(cObj)
     #total chars
     words.total <- unique(c(words.1char,words.2char))
+    system.time(which.max(words.table[words.total]))
     return(words.total[which.max(words.table[words.total])])
   }
   else {
@@ -72,4 +78,19 @@ correct <- function(input) {
 # word table, value is frequency, collum is words
 words.table <- getwords(words.file)
 # get the right word
-correct("corect")
+input <- "corect"
+system.time(correct(input))
+
+
+qsort <- function(x) {
+  n <- length(x)
+  if (n == 0) {
+    x
+  } else {
+    p <- sample(n, 1)
+    smaller <- foreach(y=x[-p], .combine=c) %:% when(y <= x[p]) %do% y
+    larger  <- foreach(y=x[-p], .combine=c) %:% when(y >  x[p]) %do% y
+    c(qsort(smaller), x[p], qsort(larger))
+  }
+}
+
