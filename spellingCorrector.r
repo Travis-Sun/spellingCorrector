@@ -1,3 +1,4 @@
+# parallel library parallel and foreach
 library(parallel)
 
 # corpus file path
