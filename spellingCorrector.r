@@ -31,7 +31,7 @@ getnearlywords <- function(word) {
      if (nchar(b)>0) {
        # delete a char
        w <- paste(c(a,substr(b,2,nchar(word))),collapse="")
-       result <- c(result, w)
+       result <- c(result, w)       
        # replace a char
        result <- c(result,do.call(rbind,lapply(letters,
                                                FUN=function(alp) {
@@ -41,8 +41,8 @@ getnearlywords <- function(word) {
      }
      # transpose    
      if (nchar(b)>1) {
-       w_t<- paste(c(a,substr(b,2,2),substr(b,1,1), substr(b,3,nchar(b))),collapse="")
-       result <- c(result,w_t)      
+       w<- paste(c(a,substr(b,2,2),substr(b,1,1), substr(b,3,nchar(b))),collapse="")
+       result <- c(result,w)
      }
      # insert
      result <- c(result, do.call(rbind, lapply(letters,
@@ -54,21 +54,28 @@ getnearlywords <- function(word) {
   return(unique(result))
 }
 
-
-
 correct <- function(input) {
   if (is.na(words.table[input])) {
     #change one char
     words.1char <- getnearlywords(input)
+    length(words.1char)
     #change two chars
+    # parallel run
     cObj <- makeCluster(detectCores())
     words.2char <- c(do.call(rbind,parLapply(cObj,words.1char,fun=getnearlywords))[,])
-    words.2char <- c(do.call(rbind,lapply(words.1char,FUN=getnearlywords))[,])
     stopCluster(cObj)
+    # sequencial run
+    #words.2char <- c(do.call(rbind,lapply(words.1char,FUN=getnearlywords))[,])
     #total chars
     words.total <- unique(c(words.1char,words.2char))
-    system.time(which.max(words.table[words.total]))
-    return(words.total[which.max(words.table[words.total])])
+    length(words.total)
+    # main time consume.
+    #system.time(words.table[words.total])
+    #system.time(which(!is.na(words.table[words.total])))
+    #system.time(which.max(words.table[words.total]))
+    #system.time(words.valid[which.max(words.table[words.valid])])
+    words.valid <- words.total[words.total %in% names(words.table)]
+    return(words.valid[which.max(words.table[words.valid])])
   }
   else {
     return(input)
@@ -79,18 +86,6 @@ correct <- function(input) {
 words.table <- getwords(words.file)
 # get the right word
 input <- "corect"
-system.time(correct(input))
-
-
-qsort <- function(x) {
-  n <- length(x)
-  if (n == 0) {
-    x
-  } else {
-    p <- sample(n, 1)
-    smaller <- foreach(y=x[-p], .combine=c) %:% when(y <= x[p]) %do% y
-    larger  <- foreach(y=x[-p], .combine=c) %:% when(y >  x[p]) %do% y
-    c(qsort(smaller), x[p], qsort(larger))
-  }
-}
+#system.time(correct(input))
+correct(input)
 
