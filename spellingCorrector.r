@@ -76,6 +76,7 @@ correct <- function(input) {
     #system.time(which.max(words.table[words.total]))
     #system.time(words.valid[which.max(words.table[words.valid])])
     words.valid <- words.total[words.total %in% names(words.table)]
+    words.valid
     return(words.valid[which.max(words.table[words.valid])])
   }
   else {
