@@ -40,5 +40,5 @@ def correct(word):
 
 
 if __name__=='__main__':
-    in_word = 'corect'
+    in_word = 'korrecter'
     print correct(in_word)

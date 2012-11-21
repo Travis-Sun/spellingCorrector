@@ -55,11 +55,21 @@ getnearlywords <- function(word) {
   return(unique(result))
 }
 
+knownword <- function(words) {
+  words.valid <- words[words %in% names(words.table)]
+  if (length(words.valid)!=0)
+    return(words.valid[which.max(words.table[words.valid])])
+  else
+    return(NA)
+}
+
 correct <- function(input) {
-  if (is.na(words.table[input])) {
+  if (is.na(words.table[input])) {    
     #change one char
     words.1char <- getnearlywords(input)
     length(words.1char)
+    words.return = knownword(unique(words.1char))
+    if (!is.na(words.return)) return(words.return)
     #change two chars
     # parallel run
     cObj <- makeCluster(detectCores())
@@ -68,16 +78,19 @@ correct <- function(input) {
     # sequencial run
     #words.2char <- c(do.call(rbind,lapply(words.1char,FUN=getnearlywords))[,])
     #total chars
-    words.total <- unique(c(words.1char,words.2char))
-    length(words.total)
+    #words.total <- unique(c(words.1char,words.2char))
+    #length(words.total)
+    # two changed chars
+    words.return = knownword(unique(words.2char))
+    return(words.return)
     # main time consume.
     #system.time(words.table[words.total])
     #system.time(which(!is.na(words.table[words.total])))
     #system.time(which.max(words.table[words.total]))
     #system.time(words.valid[which.max(words.table[words.valid])])
-    words.valid <- words.total[words.total %in% names(words.table)]
-    words.valid
-    return(words.valid[which.max(words.table[words.valid])])
+    #words.valid <- words.total[words.total %in% names(words.table)]
+    #words.valid
+    #return(words.valid[which.max(words.table[words.valid])])
   }
   else {
     return(input)
@@ -87,7 +100,7 @@ correct <- function(input) {
 # word table, value is frequency, collum is words
 words.table <- getwords(words.file)
 # get the right word
-input <- "corect"
+input <- "korrecter"
 #system.time(correct(input))
 correct(input)
 
