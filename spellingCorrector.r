@@ -1,5 +1,7 @@
 # parallel library parallel and foreach
 library(parallel)
+library(plyr)
+library(stringr)
 
 # corpus file path
 words.file = file.path("Data","words.txt")
@@ -20,6 +22,21 @@ getwords <- function(words.file) {
   return(table(words))
 }
 
+# second version getwords function
+# tolower than first function
+getwords2 <- function(words.file) {
+  con <- file(words.file, open="rt")
+  words <- readLines(con)
+  close(con)
+  result <- tolower(paste(words, collapse=" "))
+  result <- gsub('[[:punct:]]', '', result)
+  result <- gsub('[[:cntrl:]]', '', result)
+  # consume too much time. it's worse performance than strsplit function
+  # the function is in stringr pacakge.
+  words <- str_split(result, '\\s+')
+  return(table(words))
+}
+
 # nearly words of inputing word
 # change one char
 getnearlywords <- function(word) {
@@ -33,7 +50,7 @@ getnearlywords <- function(word) {
        # delete a char
        w <- paste(c(a,substr(b,2,nchar(word))),collapse="")
        result <- c(result, w)       
-       # replace a char
+       # replace a char, also can convert with unlist function
        result <- c(result,do.call(rbind,lapply(letters,
                                                FUN=function(alp) {
                                                  w <- paste(c(a, alp, substr(b,2,nchar(word))),collapse="")
@@ -98,9 +115,12 @@ correct <- function(input) {
 }
   
 # word table, value is frequency, collum is words
-words.table <- getwords(words.file)
+words.table <- system.time(getwords(words.file))
+length(words.table)
+#words.table <- system.time(getwords2(words.file))
+#length(words.table)
 # get the right word
-input <- "korrecter"
+#input <- "korrecter"
 #system.time(correct(input))
-correct(input)
+#correct(input)
 
