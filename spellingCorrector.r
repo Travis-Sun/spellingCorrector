@@ -116,11 +116,11 @@ correct <- function(input) {
   
 # word table, value is frequency, collum is words
 words.table <- system.time(getwords(words.file))
-length(words.table)
+#length(words.table)
 #words.table <- system.time(getwords2(words.file))
 #length(words.table)
 # get the right word
-#input <- "korrecter"
+input <- "korrecter"
 #system.time(correct(input))
-#correct(input)
+correct(input)
 
